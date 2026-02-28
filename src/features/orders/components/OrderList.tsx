@@ -153,7 +153,7 @@ export const OrderList = () => {
 
       <DataTable
         columns={columns}
-        data={data?.data || []}
+        data={data?.items || []}
         pageCount={data?.meta?.totalPages || 0}
         pagination={pagination}
         onPaginationChange={setPagination}

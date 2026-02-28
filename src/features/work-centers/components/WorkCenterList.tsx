@@ -154,7 +154,7 @@ export const WorkCenterList = () => {
 
       <DataTable
         columns={columns}
-        data={data?.data || []}
+        data={data?.items || []}
         pageCount={data?.meta?.totalPages || 0}
         pagination={pagination}
         onPaginationChange={setPagination}

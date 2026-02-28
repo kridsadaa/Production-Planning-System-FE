@@ -23,7 +23,7 @@ export type WorkCenter = z.infer<typeof workCenterSchema> & {
 };
 
 export interface WorkCenterListResponse {
-  data: WorkCenter[];
+  items: WorkCenter[];
   meta: {
     total: number;
     page: number;

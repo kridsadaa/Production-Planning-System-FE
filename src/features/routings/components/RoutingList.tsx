@@ -39,6 +39,8 @@ export const RoutingList = () => {
     search,
   });
 
+  const { items = [], meta } = data || {};
+
   const { mutate: deleteRouting } = useDeleteRouting();
 
   const columns: ColumnDef<Routing>[] = [
@@ -203,8 +205,8 @@ export const RoutingList = () => {
 
       <DataTable
         columns={columns}
-        data={data?.data || []}
-        pageCount={data?.meta?.totalPages || 0}
+        data={items}
+        pageCount={meta?.totalPages || 0}
         pagination={pagination}
         onPaginationChange={setPagination}
         onSearchChange={setSearch}

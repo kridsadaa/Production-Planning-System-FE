@@ -15,7 +15,7 @@ export type Material = z.infer<typeof materialSchema> & {
 };
 
 export interface MaterialListResponse {
-  data: Material[];
+  items: Material[];
   meta: {
     total: number;
     page: number;

@@ -23,7 +23,7 @@ export type Order = z.infer<typeof orderSchema> & {
 };
 
 export interface OrderListResponse {
-  data: Order[];
+  items: Order[];
   meta: {
     total: number;
     page: number;

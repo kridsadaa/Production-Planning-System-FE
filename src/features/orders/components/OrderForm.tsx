@@ -109,7 +109,7 @@ export const OrderForm = ({ onSuccess }: OrderFormProps) => {
                       placeholder={
                         isLoadingMaterials
                           ? "Loading materials..."
-                          : materialsData?.data?.length === 0
+                          : (materialsData?.items?.length === 0 || !materialsData?.items)
                           ? "No materials available"
                           : "Select a material"
                       }
@@ -117,7 +117,7 @@ export const OrderForm = ({ onSuccess }: OrderFormProps) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {materialsData?.data?.map((material: Material) => (
+                  {materialsData?.items?.map((material: Material) => (
                     <SelectItem
                       key={material._id ?? material.id}
                       value={material._id ?? material.id}

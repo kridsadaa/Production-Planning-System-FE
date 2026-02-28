@@ -32,7 +32,7 @@ export type Routing = z.infer<typeof routingSchema> & {
 };
 
 export interface RoutingListResponse {
-  data: Routing[];
+  items: Routing[];
   meta: {
     total: number;
     page: number;

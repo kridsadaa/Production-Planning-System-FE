@@ -83,7 +83,7 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {materialsData?.data?.map((m: Material) => (
+                    {materialsData?.items?.map((m: Material) => (
                       <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
                         {m.materialNumber} – {m.name}
                       </SelectItem>
@@ -154,7 +154,7 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {workCentersData?.data?.map((wc: WorkCenter) => (
+                    {workCentersData?.items?.map((wc: WorkCenter) => (
                       <SelectItem key={wc._id ?? wc.id} value={wc._id ?? wc.id}>
                         {wc.workCenterCode} – {wc.name}
                       </SelectItem>
@@ -277,7 +277,7 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {materialsData?.data?.map((m: Material) => (
+                        {materialsData?.items?.map((m: Material) => (
                           <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
                             {m.materialNumber} – {m.name}
                           </SelectItem>
