@@ -31,3 +31,25 @@ export interface OrderListResponse {
     totalPages: number;
   };
 }
+
+export interface PlannedOperation {
+  sequence: number;
+  processType: string;
+  workCenterId: string | { _id: string; workCenterCode: string };
+  baseQtyRequired: number;
+  safetyFactorUsed: number;
+  calculatedQty: number;
+  plannerOverrideQty?: number;
+  finalPlannedQty: number;
+  plannedStartDate?: string;
+  plannedEndDate?: string;
+  completedQty: number;
+  executionStatus: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+  rawMaterialsConsumed: {
+    materialId: string | { _id: string; materialNumber: string };
+    materialName: string;
+    requiredQty: number;
+    availableQty: number;
+    isSufficient: boolean;
+  }[];
+}

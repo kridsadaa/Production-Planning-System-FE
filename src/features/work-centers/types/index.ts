@@ -9,9 +9,9 @@ export const workCenterSchema = z.object({
   processType: z.enum(PROCESS_TYPES),
   status: z.enum(MACHINE_STATUSES).optional(),
   totalHeads: z.number().min(1, "Total heads must be at least 1"),
-  activeHeads: z.number().min(0, "Active heads must be 0 or more"),
-  allowConcurrentJobs: z.boolean().optional(),
-  efficiencyFactor: z.number().min(1).max(100).optional(),
+  activeHeads: z.number().min(0, "Active heads must be at least 0"),
+  allowConcurrentJobs: z.boolean().default(false),
+  efficiencyFactor: z.number().min(1).max(100),
 });
 
 export type WorkCenter = z.infer<typeof workCenterSchema> & {

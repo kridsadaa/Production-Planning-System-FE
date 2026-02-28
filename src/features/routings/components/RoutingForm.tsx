@@ -1,6 +1,6 @@
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { routingSchema, PROCESS_TYPES } from "../types";
 import { useCreateRouting } from "../hooks/useRoutings";
 import { useMaterials } from "@/features/materials/hooks/useMaterials";
@@ -46,20 +46,17 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
       defaultWorkCenterId: "",
       bomMultiplier: 1.0,
       defaultSafetyFactor: 0,
-      inputMaterialId: null,
-      inputQtyPerOutputUnit: null,
+      bom: [],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "bom",
+  });
+
   const onSubmit = (data: any) => {
-    // Clean up null values for the API if they are empty strings or null
-    const payload = {
-      ...data,
-      inputMaterialId: data.inputMaterialId || null,
-      inputQtyPerOutputUnit: data.inputQtyPerOutputUnit || null,
-    };
-    
-    createRouting(payload, {
+    createRouting(data, {
       onSuccess: () => {
         form.reset();
         onSuccess();
@@ -237,62 +234,83 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
         <Separator />
 
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">BOM Integration (Optional)</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">BOM (Raw Materials)</h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => append({ materialId: "", qtyPerUnit: 0.0001 })}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add Material
+            </Button>
+          </div>
           
-          <FormField
-            control={form.control}
-            name="inputMaterialId"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Raw Material (Input)</FormLabel>
-                <Select 
-                  onValueChange={(val) => field.onChange(val === "none" ? null : val)} 
-                  value={field.value || "none"}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="None" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">None (No material consumption)</SelectItem>
-                    {materialsData?.data?.map((m: Material) => (
-                      <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
-                        {m.materialNumber} – {m.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>The material consumed at this step.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {fields.length === 0 && (
+            <p className="text-xs text-slate-400 italic text-center py-4 bg-slate-50 rounded-md border-dashed border-2">
+              No materials defined for this step.
+            </p>
+          )}
 
-          <FormField
-            control={form.control}
-            name="inputQtyPerOutputUnit"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Input Qty per Finished Unit</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number" 
-                    min={0.0001} 
-                    step={0.0001}
-                    placeholder="e.g. 0.05 (if 1 raw = 20 finished)"
-                    value={field.value || ""}
-                    onChange={(e) => {
-                      const val = e.target.value === "" ? null : Number(e.target.value);
-                      field.onChange(val);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>Amount of raw material used to make 1 finished piece.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {fields.map((field, index) => (
+            <div key={field.id} className="space-y-4 p-4 border rounded-md relative group">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 h-8 w-8 text-slate-400 hover:text-red-600 transition-colors"
+                onClick={() => remove(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+
+              <FormField
+                control={form.control}
+                name={`bom.${index}.materialId`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Input Material</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select raw material" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {materialsData?.data?.map((m: Material) => (
+                          <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
+                            {m.materialNumber} – {m.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`bom.${index}.qtyPerUnit`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Qty per Unit</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0.0001}
+                        step={0.0001}
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormDescription>Consumption for 1 output piece.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          ))}
         </div>
 
         <Button type="submit" className="w-full" disabled={isPending}>

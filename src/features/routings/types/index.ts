@@ -10,8 +10,10 @@ export const routingSchema = z.object({
   defaultWorkCenterId: z.string().min(1, "Default work center is required"),
   bomMultiplier: z.number().min(0.1, "BOM multiplier must be at least 0.1"),
   defaultSafetyFactor: z.number().min(0).max(100).optional(),
-  inputMaterialId: z.string().optional().nullable(),
-  inputQtyPerOutputUnit: z.number().min(0.0001).optional().nullable(),
+  bom: z.array(z.object({
+    materialId: z.string().min(1, "Material is required"),
+    qtyPerUnit: z.number().min(0.0001, "Qty must be positive"),
+  })).default([]),
 });
 
 export type Routing = z.infer<typeof routingSchema> & {
@@ -22,7 +24,11 @@ export type Routing = z.infer<typeof routingSchema> & {
   // Populated fields
   materialId: { _id: string; materialNumber: string; name: string } | string;
   defaultWorkCenterId: { _id: string; workCenterCode: string; name: string } | string;
-  inputMaterialId: { _id: string; materialNumber: string; name: string } | string | null;
+  bom: {
+    materialId: { _id: string; materialNumber: string; name: string } | string;
+    qtyPerUnit: number;
+    _id?: string;
+  }[];
 };
 
 export interface RoutingListResponse {

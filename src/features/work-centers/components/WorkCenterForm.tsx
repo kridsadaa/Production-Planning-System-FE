@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface WorkCenterFormProps {
   onSuccess: () => void;
@@ -34,11 +36,11 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
       workCenterCode: "",
       name: "",
       processType: undefined,
-      status: undefined,
       totalHeads: 1,
       activeHeads: 1,
-      allowConcurrentJobs: false,
       efficiencyFactor: 100,
+      status: "IDLE",
+      allowConcurrentJobs: false,
     },
   });
 
@@ -58,9 +60,9 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
           <FormField
             control={form.control}
             name="workCenterCode"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>Work Center Code</FormLabel>
+                <FormLabel>Code</FormLabel>
                 <FormControl>
                   <Input placeholder="WC-001" {...field} />
                 </FormControl>
@@ -71,11 +73,11 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
           <FormField
             control={form.control}
             name="name"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Cutting Line A" {...field} />
+                  <Input placeholder="Line 1" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -83,39 +85,68 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="processType"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>Process Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select process type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {PROCESS_TYPES.map((pt) => (
-                    <SelectItem key={pt} value={pt}>{pt}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="processType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Process Type</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {PROCESS_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Initial Status</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {MACHINE_STATUSES.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
             name="totalHeads"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Total Heads</FormLabel>
                 <FormControl>
                   <Input
-                    type="number" min={1}
+                    type="number"
+                    min={1}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -127,12 +158,13 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
           <FormField
             control={form.control}
             name="activeHeads"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <FormItem>
                 <FormLabel>Active Heads</FormLabel>
                 <FormControl>
                   <Input
-                    type="number" min={0}
+                    type="number"
+                    min={0}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -141,18 +173,17 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
               </FormItem>
             )}
           />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="efficiencyFactor"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>Efficiency (%)</FormLabel>
+                <FormLabel>Efficiency %</FormLabel>
                 <FormControl>
                   <Input
-                    type="number" min={1} max={100}
+                    type="number"
+                    min={1}
+                    max={100}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -161,33 +192,32 @@ export const WorkCenterForm = ({ onSuccess }: WorkCenterFormProps) => {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Status (optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="IDLE (default)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {MACHINE_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="allowConcurrentJobs"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Allow Concurrent Jobs</FormLabel>
+                <FormDescription>
+                  This work center can run multiple jobs simultaneously if enabled.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
 
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Add Work Center
+          {isPending ? "Creating..." : "Create Work Center"}
         </Button>
       </form>
     </Form>
