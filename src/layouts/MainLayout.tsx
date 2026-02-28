@@ -8,7 +8,8 @@ import {
   History, 
   LogOut, 
   User,
-  Menu
+  Menu,
+  GitFork,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const sidebarItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: Settings, label: "Work Centers", path: "/work-centers" },
   { icon: Package, label: "Materials", path: "/materials" },
+  { icon: GitFork, label: "Routings", path: "/routings" },
   { icon: ClipboardList, label: "Orders", path: "/orders" },
   { icon: Users, label: "Users", path: "/users" },
   { icon: History, label: "Audit Logs", path: "/audit-logs" },

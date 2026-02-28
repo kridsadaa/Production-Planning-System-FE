@@ -1,11 +1,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { orderSchema } from "../types";
 import { useCreateOrder } from "../hooks/useOrders";
 import { useMaterials } from "@/features/materials/hooks/useMaterials";
 import type { Material } from "@/features/materials/types";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Form,
   FormControl,
@@ -33,7 +34,7 @@ export const OrderForm = ({ onSuccess }: OrderFormProps) => {
     page: 1,
   });
 
-  const { mutate: createOrder, isPending } = useCreateOrder();
+  const { mutate: createOrder, isPending, error } = useCreateOrder();
 
   const form = useForm({
     resolver: zodResolver(orderSchema),
@@ -57,9 +58,28 @@ export const OrderForm = ({ onSuccess }: OrderFormProps) => {
     });
   };
 
+  // Extract error message from axios error
+  const errorMessage = (() => {
+    if (!error) return null;
+    const axiosError = error as any;
+    return (
+      axiosError?.response?.data?.message ||
+      axiosError?.message ||
+      "An error occurred. Please try again."
+    );
+  })();
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* API Error Display */}
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
+
         {/* SAP Order Number */}
         <FormField
           control={form.control}

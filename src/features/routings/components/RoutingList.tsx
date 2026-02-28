@@ -1,9 +1,9 @@
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Plus, Trash2, Edit } from "lucide-react";
-import type { WorkCenter } from "../types";
-import { useWorkCenters, useDeleteWorkCenter } from "../hooks/useWorkCenters";
-import { WorkCenterForm } from "./WorkCenterForm";
+import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import type { Routing } from "../types";
+import { useRoutings, useDeleteRouting } from "../hooks/useRoutings";
+import { RoutingForm } from "./RoutingForm";
 import { DataTable } from "@/components/shared/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,42 +23,37 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const STATUS_COLORS: Record<string, string> = {
-  RUNNING: "bg-green-100 text-green-800",
-  IDLE: "bg-slate-100 text-slate-800",
-  STANDBY: "bg-blue-100 text-blue-800",
-  OVERLOAD: "bg-red-100 text-red-800",
-  MAINTENANCE: "bg-amber-100 text-amber-800",
-  PARTIAL_DOWN: "bg-orange-100 text-orange-800",
-};
-
-export const WorkCenterList = () => {
+export const RoutingList = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data, isLoading } = useWorkCenters({
+  const { data, isLoading } = useRoutings({
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
     search,
   });
 
-  const { mutate: deleteWC } = useDeleteWorkCenter();
+  const { mutate: deleteRouting } = useDeleteRouting();
 
-  const columns: ColumnDef<WorkCenter>[] = [
+  const columns: ColumnDef<Routing>[] = [
     {
-      accessorKey: "workCenterCode",
-      header: "Code",
+      accessorKey: "stepSequence",
+      header: "Step #",
       cell: ({ row }: { row: any }) => (
-        <div className="font-mono font-bold">{row.getValue("workCenterCode")}</div>
+        <div className="font-mono font-bold">#{row.getValue("stepSequence")}</div>
       ),
     },
     {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }: { row: any }) => (
-        <div className="font-medium">{row.getValue("name")}</div>
-      ),
+      accessorKey: "materialId",
+      header: "Material",
+      cell: ({ row }: { row: any }) => {
+        const mat = row.getValue("materialId");
+        if (mat && typeof mat === "object") {
+          return <span>{mat.materialNumber} – {mat.name}</span>;
+        }
+        return <span className="text-slate-400">—</span>;
+      },
     },
     {
       accessorKey: "processType",
@@ -68,34 +63,32 @@ export const WorkCenterList = () => {
       ),
     },
     {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "defaultWorkCenterId",
+      header: "Work Center",
       cell: ({ row }: { row: any }) => {
-        const status = row.getValue("status") as string;
-        return (
-          <Badge className={STATUS_COLORS[status] ?? "bg-slate-100 text-slate-800"} variant="outline">
-            {status}
-          </Badge>
-        );
+        const wc = row.getValue("defaultWorkCenterId");
+        if (wc && typeof wc === "object") {
+          return <span>{wc.workCenterCode} – {wc.name}</span>;
+        }
+        return <span className="text-slate-400">—</span>;
       },
     },
     {
-      accessorKey: "totalHeads",
-      header: "Heads",
-      cell: ({ row }: { row: any }) => {
-        const wc = row.original as WorkCenter;
-        return <span>{wc.activeHeads} / {wc.totalHeads}</span>;
-      },
+      accessorKey: "cycleTime",
+      header: "Cycle (s)",
     },
     {
-      accessorKey: "efficiencyFactor",
-      header: "Efficiency",
-      cell: ({ row }: { row: any }) => `${row.getValue("efficiencyFactor")}%`,
+      accessorKey: "bomMultiplier",
+      header: "BOM x",
+    },
+    {
+      accessorKey: "defaultSafetyFactor",
+      header: "Safety %",
     },
     {
       id: "actions",
       cell: ({ row }: { row: any }) => {
-        const wc = row.original;
+        const routing = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -106,18 +99,12 @@ export const WorkCenterList = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => (navigator as any).clipboard.writeText(wc._id ?? wc.id)}>
-                Copy ID
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Edit className="mr-2 h-4 w-4" /> Edit
-              </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-red-600 cursor-pointer"
                 onClick={() => {
-                  if (confirm(`Delete work center "${wc.name}"?`)) {
-                    deleteWC(wc._id ?? wc.id);
+                  if (confirm("Delete this routing step?")) {
+                    deleteRouting(routing._id ?? routing.id);
                   }
                 }}
               >
@@ -134,20 +121,22 @@ export const WorkCenterList = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Work Centers</h2>
-          <p className="text-slate-500">Manage manufacturing work centers and production lines.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Routings</h2>
+          <p className="text-slate-500">
+            Define production routing steps, cycle times, and work center assignments.
+          </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Work Center
+              <Plus className="mr-2 h-4 w-4" /> Add Routing Step
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Add Work Center</DialogTitle>
+              <DialogTitle>Add Routing Step</DialogTitle>
             </DialogHeader>
-            <WorkCenterForm onSuccess={() => setIsOpen(false)} />
+            <RoutingForm onSuccess={() => setIsOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>

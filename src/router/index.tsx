@@ -9,6 +9,7 @@ import MaterialsPage from "@/pages/MaterialsPage";
 import OrdersPage from "@/pages/OrdersPage";
 import UsersPage from "@/pages/UsersPage";
 import AuditLogsPage from "@/pages/AuditLogsPage";
+import RoutingsPage from "@/pages/RoutingsPage";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ export const router = createBrowserRouter([
           {
             path: "/audit-logs",
             element: <AuditLogsPage />,
+          },
+          {
+            path: "/routings",
+            element: <RoutingsPage />,
           },
         ],
       },
