@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
 interface RoutingFormProps {
   onSuccess: () => void;
@@ -44,11 +46,20 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
       defaultWorkCenterId: "",
       bomMultiplier: 1.0,
       defaultSafetyFactor: 0,
+      inputMaterialId: null,
+      inputQtyPerOutputUnit: null,
     },
   });
 
   const onSubmit = (data: any) => {
-    createRouting(data, {
+    // Clean up null values for the API if they are empty strings or null
+    const payload = {
+      ...data,
+      inputMaterialId: data.inputMaterialId || null,
+      inputQtyPerOutputUnit: data.inputQtyPerOutputUnit || null,
+    };
+    
+    createRouting(payload, {
       onSuccess: () => {
         form.reset();
         onSuccess();
@@ -58,69 +69,98 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Material */}
-        <FormField
-          control={form.control}
-          name="materialId"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>Material</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select material" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {materialsData?.data?.map((m: Material) => (
-                    <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
-                      {m.materialNumber} – {m.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          {/* Step Sequence */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[80vh] overflow-y-auto px-1">
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Basic Info</h3>
+          {/* Material */}
           <FormField
             control={form.control}
-            name="stepSequence"
+            name="materialId"
             render={({ field }: { field: any }) => (
               <FormItem>
-                <FormLabel>Step #</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number" min={1}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
+                <FormLabel>Finished Good (Output)</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select material" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {materialsData?.data?.map((m: Material) => (
+                      <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
+                        {m.materialNumber} – {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Process Type */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Step Sequence */}
+            <FormField
+              control={form.control}
+              name="stepSequence"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Step Sequence #</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number" min={1}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Process Type */}
+            <FormField
+              control={form.control}
+              name="processType"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Process Type</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select process" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {PROCESS_TYPES.map((pt) => (
+                        <SelectItem key={pt} value={pt}>{pt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Default Work Center */}
           <FormField
             control={form.control}
-            name="processType"
+            name="defaultWorkCenterId"
             render={({ field }: { field: any }) => (
               <FormItem>
-                <FormLabel>Process Type</FormLabel>
+                <FormLabel>Primary Work Center</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select process" />
+                      <SelectValue placeholder="Select work center" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {PROCESS_TYPES.map((pt) => (
-                      <SelectItem key={pt} value={pt}>{pt}</SelectItem>
+                    {workCentersData?.data?.map((wc: WorkCenter) => (
+                      <SelectItem key={wc._id ?? wc.id} value={wc._id ?? wc.id}>
+                        {wc.workCenterCode} – {wc.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -130,85 +170,125 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
           />
         </div>
 
-        {/* Default Work Center */}
-        <FormField
-          control={form.control}
-          name="defaultWorkCenterId"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>Default Work Center</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select work center" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {workCentersData?.data?.map((wc: WorkCenter) => (
-                    <SelectItem key={wc._id ?? wc.id} value={wc._id ?? wc.id}>
-                      {wc.workCenterCode} – {wc.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <Separator />
 
-        <div className="grid grid-cols-3 gap-4">
-          {/* Cycle Time */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">Timing & Efficiency</h3>
+          <div className="grid grid-cols-3 gap-4">
+            {/* Cycle Time */}
+            <FormField
+              control={form.control}
+              name="cycleTime"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Cycle (s)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number" min={0.1} step={0.1}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* BOM Multiplier */}
+            <FormField
+              control={form.control}
+              name="bomMultiplier"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Multiplier</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number" min={0.1} step={0.1}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Safety Factor */}
+            <FormField
+              control={form.control}
+              name="defaultSafetyFactor"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Safety %</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number" min={0} max={100}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider">BOM Integration (Optional)</h3>
+          
           <FormField
             control={form.control}
-            name="cycleTime"
+            name="inputMaterialId"
             render={({ field }: { field: any }) => (
               <FormItem>
-                <FormLabel>Cycle Time (s)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number" min={0.1} step={0.1}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
+                <FormLabel>Raw Material (Input)</FormLabel>
+                <Select 
+                  onValueChange={(val) => field.onChange(val === "none" ? null : val)} 
+                  value={field.value || "none"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="None" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">None (No material consumption)</SelectItem>
+                    {materialsData?.data?.map((m: Material) => (
+                      <SelectItem key={m._id ?? m.id} value={m._id ?? m.id}>
+                        {m.materialNumber} – {m.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>The material consumed at this step.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* BOM Multiplier */}
           <FormField
             control={form.control}
-            name="bomMultiplier"
+            name="inputQtyPerOutputUnit"
             render={({ field }: { field: any }) => (
               <FormItem>
-                <FormLabel>BOM Multiplier</FormLabel>
+                <FormLabel>Input Qty per Finished Unit</FormLabel>
                 <FormControl>
                   <Input
-                    type="number" min={0.1} step={0.1}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    type="number" 
+                    min={0.0001} 
+                    step={0.0001}
+                    placeholder="e.g. 0.05 (if 1 raw = 20 finished)"
+                    value={field.value || ""}
+                    onChange={(e) => {
+                      const val = e.target.value === "" ? null : Number(e.target.value);
+                      field.onChange(val);
+                    }}
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Safety Factor */}
-          <FormField
-            control={form.control}
-            name="defaultSafetyFactor"
-            render={({ field }: { field: any }) => (
-              <FormItem>
-                <FormLabel>Safety Factor (%)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number" min={0} max={100}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                </FormControl>
+                <FormDescription>Amount of raw material used to make 1 finished piece.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -217,7 +297,7 @@ export const RoutingForm = ({ onSuccess }: RoutingFormProps) => {
 
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Add Routing Step
+          {isPending ? "Adding..." : "Add Routing Step"}
         </Button>
       </form>
     </Form>

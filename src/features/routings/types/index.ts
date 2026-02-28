@@ -10,6 +10,8 @@ export const routingSchema = z.object({
   defaultWorkCenterId: z.string().min(1, "Default work center is required"),
   bomMultiplier: z.number().min(0.1, "BOM multiplier must be at least 0.1"),
   defaultSafetyFactor: z.number().min(0).max(100).optional(),
+  inputMaterialId: z.string().optional().nullable(),
+  inputQtyPerOutputUnit: z.number().min(0.0001).optional().nullable(),
 });
 
 export type Routing = z.infer<typeof routingSchema> & {
@@ -20,6 +22,7 @@ export type Routing = z.infer<typeof routingSchema> & {
   // Populated fields
   materialId: { _id: string; materialNumber: string; name: string } | string;
   defaultWorkCenterId: { _id: string; workCenterCode: string; name: string } | string;
+  inputMaterialId: { _id: string; materialNumber: string; name: string } | string | null;
 };
 
 export interface RoutingListResponse {
