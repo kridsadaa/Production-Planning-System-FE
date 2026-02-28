@@ -1,18 +1,25 @@
 import { z } from "zod";
 
 export const orderSchema = z.object({
-  orderNumber: z.string().min(1, "Order number is required"),
-  partId: z.string().min(1, "Part is required"),
-  quantity: z.number().min(1, "Quantity must be at least 1"),
-  priority: z.enum(["low", "medium", "high", "urgent"]),
+  sapOrderNumber: z.string().min(1, "SAP Order number is required"),
+  materialId: z.string().min(1, "Material is required"),
+  targetFGQty: z.number().min(1, "Target quantity must be at least 1"),
   dueDate: z.string().min(1, "Due date is required"),
-  status: z.enum(["pending", "in_progress", "completed", "cancelled"]),
+  existingStockQty: z.number().min(0).optional(),
+  status: z.enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]).optional(),
 });
 
 export type Order = z.infer<typeof orderSchema> & {
   id: string;
+  netTargetQty: number;
   createdAt: string;
   updatedAt: string;
+  // Populated field from backend
+  materialId: {
+    _id: string;
+    materialNumber: string;
+    name: string;
+  } | string;
 };
 
 export interface OrderListResponse {
