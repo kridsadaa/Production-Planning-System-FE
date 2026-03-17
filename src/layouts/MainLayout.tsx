@@ -10,6 +10,8 @@ import {
   User,
   Menu,
   GitFork,
+  CalendarDays,
+  Gauge,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,11 +26,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const sidebarItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
+  { icon: CalendarDays, label: "Scheduling", path: "/scheduling" },
+  { icon: Gauge, label: "Capacity", path: "/capacity" },
+  { icon: ClipboardList, label: "Orders", path: "/orders" },
   { icon: Settings, label: "Work Centers", path: "/work-centers" },
   { icon: Package, label: "Materials", path: "/materials" },
   { icon: GitFork, label: "Routings", path: "/routings" },
-  { icon: ClipboardList, label: "Orders", path: "/orders" },
   { icon: Users, label: "Users", path: "/users" },
   { icon: History, label: "Audit Logs", path: "/audit-logs" },
 ];

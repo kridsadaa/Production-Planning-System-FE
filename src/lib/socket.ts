@@ -28,15 +28,35 @@ socket.on("connect_error", (err) => {
  * Call once after QueryClient is initialized (e.g. in App.tsx).
  */
 export function registerSocketListeners(queryClient: QueryClient) {
-  // Order created / updated / deleted → refresh orders table
-  socket.on("orderStatusUpdated", (data) => {
-    console.log("[Socket] orderStatusUpdated:", data);
+  // Orders
+  socket.on("orderStatusUpdated", () => {
     queryClient.invalidateQueries({ queryKey: ["orders"] });
+    queryClient.invalidateQueries({ queryKey: ["metrics"] });
   });
-
-  // Work-center status changed → refresh work-centers table
-  socket.on("machineStatusUpdated", (data) => {
-    console.log("[Socket] machineStatusUpdated:", data);
+  
+  // Work Centers / Machines
+  socket.on("machineStatusUpdated", () => {
     queryClient.invalidateQueries({ queryKey: ["work-centers"] });
+    queryClient.invalidateQueries({ queryKey: ["capacity"] });
+  });
+  
+  // Scheduling
+  socket.on("scheduleUpdated", () => {
+    queryClient.invalidateQueries({ queryKey: ["scheduling"] });
+  });
+  
+  socket.on("scheduleReordered", () => {
+    queryClient.invalidateQueries({ queryKey: ["scheduling"] });
+  });
+  
+  // Capacity alert
+  socket.on("machineOverloadAlert", () => {
+    queryClient.invalidateQueries({ queryKey: ["capacity"] });
+    queryClient.invalidateQueries({ queryKey: ["metrics"] });
+  });
+  
+  // Progress / Production logs
+  socket.on("progressUpdated", () => {
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
   });
 }

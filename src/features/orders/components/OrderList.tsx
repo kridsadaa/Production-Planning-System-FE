@@ -22,11 +22,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { OrderForm } from "./OrderForm";
+import { OrderDetail } from "./OrderDetail";
 
 export const OrderList = () => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [search, setSearch] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   
   const { data, isLoading } = useOrders({
     page: pagination.pageIndex + 1,
@@ -109,8 +111,11 @@ export const OrderList = () => {
                 Copy ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Edit className="mr-2 h-4 w-4" /> Edit
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => setSelectedOrderId(order.id)}
+              >
+                <Edit className="mr-2 h-4 w-4" /> Details
               </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-red-600 cursor-pointer"
@@ -159,6 +164,11 @@ export const OrderList = () => {
         onPaginationChange={setPagination}
         onSearchChange={setSearch}
         isLoading={isLoading}
+      />
+
+      <OrderDetail 
+        orderId={selectedOrderId} 
+        onClose={() => setSelectedOrderId(null)} 
       />
     </div>
   );

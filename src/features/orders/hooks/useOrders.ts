@@ -3,7 +3,8 @@ import {
   getOrders, 
   createOrder, 
   updateOrder, 
-  deleteOrder 
+  deleteOrder,
+  getOrder
 } from "../api/orders";
 
 export const useOrders = (params: any) => {
@@ -40,5 +41,13 @@ export const useDeleteOrder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["production-orders"] });
     },
+  });
+};
+
+export const useOrder = (id: string | null) => {
+  return useQuery({
+    queryKey: ["production-orders", id],
+    queryFn: () => getOrder(id!),
+    enabled: !!id,
   });
 };

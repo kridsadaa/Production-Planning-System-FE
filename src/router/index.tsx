@@ -1,65 +1,52 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { ProtectedRoute } from "./ProtectedRoute";
 import { MainLayout } from "@/layouts/MainLayout";
+import { AuthLayout } from "@/layouts/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
-import ChangePasswordPage from "@/pages/ChangePasswordPage";
 import { DashboardPage } from "@/pages/DashboardPage";
-import WorkCentersPage from "@/pages/WorkCentersPage";
-import MaterialsPage from "@/pages/MaterialsPage";
 import OrdersPage from "@/pages/OrdersPage";
-import UsersPage from "@/pages/UsersPage";
-import AuditLogsPage from "@/pages/AuditLogsPage";
-import RoutingsPage from "@/pages/RoutingsPage";
+import SchedulingPage from "@/pages/SchedulingPage";
+import CapacityPage from "@/pages/CapacityPage";
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    element: <ProtectedRoute />,
+    element: <AuthLayout />,
     children: [
       {
-        element: <MainLayout />,
-        children: [
-          {
-            path: "/",
-            element: <DashboardPage />,
-          },
-          {
-            path: "/work-centers",
-            element: <WorkCentersPage />,
-          },
-          {
-            path: "/materials",
-            element: <MaterialsPage />,
-          },
-          {
-            path: "/orders",
-            element: <OrdersPage />,
-          },
-          {
-            path: "/users",
-            element: <UsersPage />,
-          },
-          {
-            path: "/audit-logs",
-            element: <AuditLogsPage />,
-          },
-          {
-            path: "/routings",
-            element: <RoutingsPage />,
-          },
-        ],
-      },
-      {
-        path: "/change-password",
-        element: <ChangePasswordPage />,
+        path: "",
+        element: <LoginPage />,
       },
     ],
   },
   {
-    path: "*",
-    element: <Navigate to="/" replace />,
+    path: "/",
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "",
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />,
+      },
+      {
+        path: "orders",
+        element: <OrdersPage />,
+      },
+      {
+        path: "scheduling",
+        element: <SchedulingPage />,
+      },
+      {
+        path: "capacity",
+        element: <CapacityPage />,
+      },
+    ],
   },
 ]);
