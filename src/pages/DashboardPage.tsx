@@ -169,9 +169,6 @@ export const DashboardPage = () => {
                   <Progress 
                     value={load.loadPercent} 
                     className="h-2"
-                    indicatorClassName={cn(
-                      load.isOverloaded ? "bg-red-600" : load.loadPercent > 60 ? "bg-amber-500" : "bg-green-500"
-                    )}
                   />
                 </div>
               ))}

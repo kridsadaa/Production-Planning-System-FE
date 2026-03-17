@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { TimelineTable } from "../features/scheduling/components/TimelineTable";
 import { CapacityWarnings } from "../features/scheduling/components/CapacityWarnings";
 import { useTimeline } from "../features/scheduling/hooks/useScheduling";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function SchedulingPage() {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);

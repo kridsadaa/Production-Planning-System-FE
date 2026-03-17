@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Calendar, AlertTriangle, Play, RefreshCw, CheckCircle, Clock, XCircle } from "lucide-react";
+import { 
+  Play, 
+  RefreshCw
+} from "lucide-react";
 import type { ScheduledOperation } from "../types";
 import { useAutoSchedule, useReSchedule } from "../hooks/useScheduling";
 import { DataTable } from "@/components/shared/DataTable";
@@ -52,7 +55,7 @@ export const TimelineTable = ({ data, isLoading, pageCount, pagination, onPagina
       header: "SAP Order #",
       cell: ({ row }) => {
         const order = row.original.orderId;
-        const sapNum = typeof order === "object" ? order.sapOrderNumber : row.original.sapOrderNumber;
+        const sapNum = typeof order === "object" ? (order as any).sapOrderNumber : row.original.sapOrderNumber;
         return <div className="font-mono font-bold">{sapNum}</div>;
       },
     },
@@ -61,7 +64,7 @@ export const TimelineTable = ({ data, isLoading, pageCount, pagination, onPagina
       header: "Work Center",
       cell: ({ row }) => {
         const wc = row.original.workCenterId;
-        return typeof wc === "object" ? wc.workCenterCode : wc;
+        return typeof wc === "object" ? (wc as any).workCenterCode : wc;
       },
     },
     {
@@ -102,7 +105,7 @@ export const TimelineTable = ({ data, isLoading, pageCount, pagination, onPagina
             onClick={() => setConfirmAuto(true)}
             disabled={isAutoPending || isRePending}
           >
-            {isAutoPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
+            {isAutoPending ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
             Auto Schedule
           </Button>
           <Button 
@@ -111,7 +114,7 @@ export const TimelineTable = ({ data, isLoading, pageCount, pagination, onPagina
             onClick={() => setConfirmRe(true)}
             disabled={isAutoPending || isRePending}
           >
-            {isRePending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            {isRePending ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
             Re-Schedule
           </Button>
         </div>
@@ -166,5 +169,3 @@ export const TimelineTable = ({ data, isLoading, pageCount, pagination, onPagina
     </div>
   );
 };
-
-const Loader2 = ({ className }: { className?: string }) => <RefreshCw className={className} />;
